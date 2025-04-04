@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>Computer Vision AI</title>
+{% endblock %}
+
+{% block bgmovie %}
+<video class="bg-movie" autoplay loop preload="metadata" muted>
+  <source src="/static/video/optimized_processed_jump.mp4" type="video/mp4"/>
+  Ваш браузер не поддерживает тег <code>video</code>.
+</video>
+{% endblock %}
+
+{% block body %}
+<main class="main">
+  <div class="main_text">
+    <p>Данный Веб-ресурс обеспечивает возможность обработки видеозаписей спортивных выступлений по прыжкам в воду с
+      использованием соответственно обученной нейросети, в результате чего будет выставлена оценка представленному
+      выступлению с точки зрения выполнения акробатических элементов в полётной фазе, а так же чистоты входа в воду.
+      Таким образом нейросеть выполняет роль "Электронного судьи".</p>
+    <p><span style="color: red; font-size: 1.25em">Ограничения:</span> В настоящее время оцениваются только одиночные
+      выступления, поэтому синхронность, присущая
+      одновременному прыжку нескольких спортсменов, не учитывается. Также всего распознается 28 видов движений, что с
+      практической точки зрения вполне достаточно для обеспечения правильной оценки с высокой степенью точности. Также
+      на данном этапе обеспечена обработка только готовых видеофайлов в формате mp4, работа с потоковым вещанием в
+      режиме реального времени не предусмотрена.</p>
+    <p>Данное приложение было разработано в рамках проекта на кафедре "Математика и компьютерные науки" Кубанского
+      государственного университета, 2025 год.</p>
+    <p>Для начала работы с данным ресурсом <span style="color: red">необходимо зарегистрироваться</span> либо войти
+      под уже имеющимися регистрационными данными. Эти требования продиктованы высокими рисками кибератак и их
+      выполнение нацелено на обеспечения общей безопасности при работе с системой.
+    </p>
+    <p class="main_text__mod">Приятной работы!</p>
+    <div class="btn">
+      <a href="/run" class="button">Вход</a>
+      <a href="#" class="button button__mod">Регистрация</a>
+    </div>
+  </div>
+</main>
+
+<!--  <p style="text-align: center; font-size: 20pt; text-indent: 3em">-->
+<!--    Для анализа выберите файл с видеозаписью спортивного выступления для его обработки нейросетью:-->
+<!--  </p>-->
+<!--  <div class="row">-->
+<!--    <div class="col-md-12 text-center">-->
+<!--      &lt;!&ndash;        <a class="btn btn-outline-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">&ndash;&gt;-->
+<!--      &lt;!&ndash;           <h2>Открыть файл</h2>&ndash;&gt;-->
+<!--      &lt;!&ndash;        </a>&ndash;&gt;-->
+<!--      &lt;!&ndash;          <form method="post">&ndash;&gt;-->
+<!--      &lt;!&ndash;            <input  type="file" id="fileInput1" style="visibility: hidden; position: absolute; left: -9999px;">&ndash;&gt;-->
+<!--      &lt;!&ndash;            <label for="fileInput1" class="btn btn-outline-dark"><h2>Выбрать файл *.mp4</h2></label>&ndash;&gt;-->
+<!--      &lt;!&ndash;          </form>&ndash;&gt;-->
+
+<!--      &lt;!&ndash;          <form action="/result/" method="POST">&ndash;&gt;-->
+<!--      &lt;!&ndash;            &lt;!&ndash; скрытый параметр &ndash;&gt;&ndash;&gt;-->
+<!--      &lt;!&ndash;            <input type="hidden" name="index" value="1">&ndash;&gt;-->
+<!--      &lt;!&ndash;            <input type="submit" class="btn btn-dark" value="Нажать 1">&ndash;&gt;-->
+<!--      &lt;!&ndash;          </form>&ndash;&gt;-->
+<!--      &lt;!&ndash;          <form action="/result" method="POST">&ndash;&gt;-->
+<!--      &lt;!&ndash;            &lt;!&ndash; скрытый параметр &ndash;&gt;&ndash;&gt;-->
+<!--      &lt;!&ndash;            <input type="hidden" name="index" value="2">&ndash;&gt;-->
+<!--      &lt;!&ndash;            <input type="submit" class="btn btn-dark" value="Нажать 2">&ndash;&gt;-->
+<!--      &lt;!&ndash;          </form>&ndash;&gt;-->
+<!--      <form action="/" method="POST">-->
+<!--        <input type="file" id="fileInput" name="fileInput" hidden onchange="handleFiles(this.files)"-->
+<!--               value="handleFiles(this.files)">-->
+<!--        <button class="btn btn-outline-dark" onclick="document.getElementById('fileInput').click();">-->
+<!--          <h3>Выбрать файл mp4 или avi</h3>-->
+<!--        </button>-->
+<!--      </form>-->
+<!--    </div>-->
+<!--  </div>-->
+
+<!--  <p>{{msg}}</p>-->
+<!--  <br>-->
+<!--  <p style="text-align: justify; font-size: 18px; text-indent: 3em">-->
+<!--    Вопросы, отзывы и пожелания направлять на <b>e-mail: </b>-->
+<!--    <a href="mailto: khmylova03@gmail.com">gmail.com</a> .-->
+<!--  </p>-->
+<!--  <br>-->
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

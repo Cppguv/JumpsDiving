@@ -1,0 +1,107 @@
+body {
+    min-height: 100vh;
+    background-color: #141924;
+    color: #fff;
+}
+.bg-movie {
+    position: absolute;
+    width: 100%;
+    opacity: .20;
+    z-index: -1;
+}
+.nav {
+    width: 100%;
+    line-height: 1.2;
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    align-items: center;
+    text-align: center;
+    /*white-space: nowrap;*/
+    /*overflow-x: scroll;*/
+    /*overflow-y: hidden;*/
+}
+.nav-title {
+    font-size: 2.35rem;
+    font-weight: 1000;
+    letter-spacing: 0.3rem;
+    margin-top: 0.5rem;
+}
+.nav-subtitle {
+    font-size: 2.1rem;
+    font-weight: 700;
+    letter-spacing: 0.2rem;
+    --rainbow-gradient: linear-gradient(-90deg, #adfbda 0, #35c3ff 30%, #fda399 50%, #76d880 70%, #ebf38b 90%, #adfbda 100%);
+    background-image: var(--rainbow-gradient, #fff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+a {
+    color: inherit; /* Стандартный синий цвет перекрываем своим */
+    text-decoration: none; /* убираем подчеркивания */
+}
+.nav-links {
+    display: flex;
+    width: 90%;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 0.5rem 0;
+    font-family: Mija, -apple-system, BlinkMacSystemFont, Roboto, roboto slab, droid serif, segoe ui, system-ui, Arial, sans-serif;
+    font-size: 1.625rem;
+    color: #328af1;
+}
+.navbar-link {
+}
+#nav1 {
+    font-weight: 700;
+    letter-spacing: 0.2rem;
+    color: #355dff;
+}
+hr {
+    margin: 0;
+    padding: 0;
+    width: 90%;
+    height: 1px;
+}
+.main {
+    /*position: relative;*/
+}
+.main_text {
+    width: 90%;
+    margin: 5% auto;
+    text-align: justify;
+    font-size: 1.75rem;
+    font-weight: 100;
+    font-style: italic;
+    letter-spacing: 0.2rem;
+    line-height: 1.2;
+    text-indent: 2%;
+    color: #35eeff;
+}
+.main_text__mod {
+    margin: 1% 0;
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: #14ff7a;
+}
+.btn {
+    margin: 5%;
+    text-align: right;
+    align-items: center;
+}
+.button {
+    border: 2px solid yellow;
+    padding: 15px 20px;
+    margin: 15px;
+    border-radius: 10px;
+    background-color: #141924;
+}
+.button__mod {
+    background-color: #FFFF00FF;
+    color: #1e5db3;
+    font-weight: 600;
+}
+.test {
+
+}
