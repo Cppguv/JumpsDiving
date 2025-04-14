@@ -20,54 +20,47 @@ def index(path):
     return render_template('index.html').encode(encoding='UTF-8')
 
 
-@app.route('/run')
+@app.route('/startjob')
 def run():
-    return '''
-    <!doctype html>
-    <title>Загрузка видео</title>
-    <h1>Загрузите видеофайл</h1>
-    <form method="post" action="/upload" enctype="multipart/form-data">
-      <input type="file" name="file" accept="video/*">
-      <button type="submit">Загрузить</button>
-    </form>
-    '''
+    return render_template('upload.html').encode(encoding='UTF-8')
+
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    if 'file' not in request.files:
-        return "Файл не найден"
+    if 'uploadForm_File' not in request.files:
+        return "Файл не найден!"
 
-    file = request.files['file']
+    file = request.files['uploadForm_File']
     if file.filename == '':
-        return "Файл не выбран"
+        return "Файл не выбран!"
 
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
+    return f'''Файл успешно загружен! '''
 
-    # Обработка видео
-    processed_file_path = os.path.join(app.config['PROCESSED_FOLDER'], f"processed_{file.filename}")
-    process_video(file_path, processed_file_path)
-
-    optimizes_output_video = os.path.join(app.config['PROCESSED_FOLDER'], f"optimized_processed_{file.filename}")
-    # Команда FFmpeg для сжатия видео
-    ffmpeg_command = [
-        'ffmpeg', '-i', f"{processed_file_path}",
-        '-c:v', 'libx264', '-crf', '23', '-preset', 'medium',
-        '-c:a', 'aac', f"{optimizes_output_video}"
-    ]
-
-    # Запуск команды
-    subprocess.run(ffmpeg_command)
-
-    return f'''
-    <!doctype html>
-    <title>Результат</title>
-    <h1>Обработанное видео</h1>
-    <video controls width="640">
-      <source src="/processed/{os.path.basename(optimizes_output_video)}" type="video/mp4">
-      Ваш браузер не поддерживает видео.
-    </video>
-    '''
+    # # Обработка видео
+    # processed_file_path = os.path.join(app.config['PROCESSED_FOLDER'], f"processed_{file.filename}")
+    # process_video(file_path, processed_file_path)
+    #
+    # optimizes_output_video = os.path.join(app.config['PROCESSED_FOLDER'], f"optimized_processed_{file.filename}")
+    # # Команда FFmpeg для сжатия видео
+    # ffmpeg_command = [
+    #     'ffmpeg', '-i', f"{processed_file_path}",
+    #     '-c:v', 'libx264', '-crf', '23', '-preset', 'medium',
+    #     '-c:a', 'aac', f"{optimizes_output_video}"
+    # ]
+    # # Запуск команды
+    # subprocess.run(ffmpeg_command)
+    #
+    # return f'''
+    # <!doctype html>
+    # <title>Результат</title>
+    # <h1>Обработанное видео</h1>
+    # <video controls width="640">
+    #   <source src="/processed/{os.path.basename(optimizes_output_video)}" type="video/mp4">
+    #   Ваш браузер не поддерживает видео.
+    # </video>
+    # '''
 
 @app.route('/processed/<filename>')
 def processed_video(filename):

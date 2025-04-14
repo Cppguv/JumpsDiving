@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Загрузка видео</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/upload.css') }}">
+</head>
+<body>
+<div class="uploader-wrapper">
+  <form
+          class="form-upload"
+          id="uploadForm"
+          method="post"
+          enctype="multipart/form-data"
+  >
+    <label class="form-upload__label" for="uploadForm_File">
+      <span class="form-upload__title">Исходное видео:</span>
+      <input
+              class="form-upload__input"
+              id="uploadForm_File"
+              type="file"
+              name="file_name"
+              accept="video/*"
+      >
+    </label>
+    <input
+            class="form-upload__submit form-upload__submit_purple"
+            id="uploadForm_Submit"
+            type="submit"
+            value="Загрузить файл"
+    >
+    <progress id="progressBar" value="0" max="100"></progress>
+    <div class="form-upload__container">
+      <span class="form-upload__status" id="uploadForm_Status"></span>
+      <span id="uploadForm_Size"></span>
+    </div>
+  </form>
+</div>
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+</body>
+</html>
