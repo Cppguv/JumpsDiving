@@ -1,4 +1,16 @@
+body {
+  min-height: 100vh;
+  background-color: #141924;
+  color: #fff;
+}
+
 .uploader-wrapper {
+  margin: 5rem auto;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  max-width: 90%;
 }
 
 .form-upload {
@@ -71,8 +83,42 @@ progress,
   outline: none;
 }
 
+.form-upload__submit:disabled {
+  border: 2px solid rgb(170, 170, 170);
+  outline: none;
+  background-color: rgb(170, 170, 170);
+  transition: background-color 0.2s linear;
+}
+
 .form-upload__submit_purple {
   background-color: #C56FFF;
+}
+
+.form-upload__submit_blue {
+  background-color: #35c3ff;
+}
+
+.form-upload__submit_green {
+  background-color: #10C35AFF;
+}
+
+.form-container {
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  max-width: 480px;
+  font-size: 1.25rem;
+  font-weight: 300;
+  font-family: inherit;
+  line-height: 1.2;
+}
+
+.nested-checkboxes {
+  margin-left: 20px;
+  margin-top: 10px;
+  padding-left: 10px;
+  border-left: 2px solid #ccc;
 }
 
 progress {
@@ -104,3 +150,8 @@ progress::-moz-progress-bar {
 .form-upload__status:empty::before {
   content: "Не загружено";
 }
+
+/*button:disabled {*/
+/*  opacity: 0.5;*/
+/*  cursor: not-allowed;*/
+/*}*/
