@@ -13,6 +13,4 @@ function handleFiles(files) {
 //            // Посмотрим, что же у нас тут
 //        };
 //        reader.readAsText(file); // Выбираем метод в зависимости от типа файла — мы все же разнообразны
-    }
-    return files[0]
 }

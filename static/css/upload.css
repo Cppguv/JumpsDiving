@@ -14,6 +14,9 @@ body {
 }
 
 .form-upload {
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -26,7 +29,7 @@ body {
 }
 
 .form-upload__title {
-  max-width: 200px;
+  max-width: 400px;
   margin: 15px auto;
   font-size: 24px;
   font-weight: 500;
@@ -55,7 +58,7 @@ body {
 .form-upload__submit,
 progress,
 .form-upload__container {
-  width: 360px;
+  width: 430px;
 }
 
 .form-upload__submit {
@@ -140,6 +143,12 @@ progress::-webkit-progress-value {
 progress::-moz-progress-bar {
   border: none;
   background-color: #41E847;
+}
+
+#progressContainer {
+  width: 430px;
+  margin: 0 auto;
+  /*align-content: center;*/
 }
 
 .form-upload__container {

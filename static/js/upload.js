@@ -1,3 +1,9 @@
+// Глобальная переменная для хранения состояния checkbox1
+let checkbox1State = false;
+let checkbox2State = false;
+let nestedCheckbox1State = false;
+let nestedCheckbox2State = false;
+let fileToUpload = '';
 const BYTES_IN_MB = 1048576
 
 const form = document.getElementById('uploadForm')
@@ -5,7 +11,7 @@ const submitButton = form.querySelector('.form-upload__submit')
 const fileInput = form.querySelector('.form-upload__input')
 const sizeText = form.querySelector('#uploadForm_Size')
 const statusText = form.querySelector('.form-upload__status')
-const progressBar = form.querySelector('#progressBar')
+const progressBar = form.querySelector('#progressBarLoading')
 
 function resetProgress(status = '') {
     statusText.textContent = status
@@ -44,8 +50,8 @@ addEventListener('load', function () {
 
 fileInput.addEventListener('change', function () {
     const file = this.files[0]
-    if (file.size > 25 * BYTES_IN_MB) {
-        alert('Принимается файл до 25 МБ')
+    if (file.size > 50 * BYTES_IN_MB) {
+        alert('Принимается файл до 50 МБ')
         this.value = null
     }
     resetProgress()
@@ -54,7 +60,7 @@ fileInput.addEventListener('change', function () {
 form.addEventListener('submit', function (event) {
     event.preventDefault()
     if (fileInput.files.length > 0) {
-        const fileToUpload = fileInput.files[0]
+        fileToUpload = fileInput.files[0]
         fileInput.disabled = true
         submitButton.disabled = true
         resetProgress()
@@ -71,16 +77,20 @@ function progressHandler(event) {
 
 function loadHandler(event) {
     if (event.target.status !== 200) {
-    //if (event.target.status !== 404) {
         errorHandler()
     } else {
-        statusText.textContent = event.target.responseText
-        processVideo();
+        const response = JSON.parse(event.target.responseText); // Парсим JSON
+        if (response.success) {
+            statusText.textContent = `Файл ${response.filename} загружен! `;
+            processVideo();
+        } else {
+            statusText.textContent = 'Ошибка загрузки!';
+        }
     }
 }
 
 function errorHandler() {
-    resetProgress('Ошибка загрузки')
+    resetProgress('Ошибка загрузки!')
     fileInput.disabled = false
     submitButton.disabled = false
 }
@@ -106,10 +116,6 @@ function processVideo() {
         // Сначала все стираем со страницы и заново рисуем новые элементы
         document.getElementById('uploadForm').innerHTML = '';
         this.remove();  // удаляем саму кнопку со страницы
-
-        //myForm.className = 'form-container';
-        // myForm.classList.add('form-container');
-        // myForm.appendChild(label);
 
         // Создаем контейнер для формы
         const formContainer = document.createElement('div');
@@ -159,7 +165,7 @@ function processVideo() {
 
         const nestedLabel2 = document.createElement('label');
         nestedLabel2.htmlFor = 'nestedOption2';
-        nestedLabel2.textContent = ' Показ оценки на видео в каждый момент времени';
+        nestedLabel2.textContent = ' Показ метрик на видео';
 
         // Кнопка подтверждения (изначально disable)
         const submitBtn = document.createElement('button');
@@ -170,17 +176,17 @@ function processVideo() {
         submitBtn.disabled = true;
 
         // Функция проверки состояния чекбоксов
-        function updateSubmitButtonState() {
-            const isMainOption1Checked = checkbox1.checked;
-            const isMainOption2Checked = checkbox2.checked;
-            const isNestedOption1Checked = nestedCheckbox1.checked;
-            const isNestedOption2Checked = nestedCheckbox2.checked;
+        function updateSubmitBtnState() {
+            checkbox1State = checkbox1.checked;
+            checkbox2State = checkbox2.checked;
+            nestedCheckbox1State = nestedCheckbox1.checked;
+            nestedCheckbox2State = nestedCheckbox2.checked;
 
             // Активируем кнопку, если выбран хотя бы один основной чекбокс
             // или если выбран основной чекбокс 2 и хотя бы один вложенный
-            const shouldEnable = isMainOption1Checked ||
-                (isMainOption2Checked && (isNestedOption1Checked || isNestedOption2Checked)) ||
-                isMainOption2Checked;
+            const shouldEnable = checkbox1State ||
+                (checkbox2State && (nestedCheckbox1State || nestedCheckbox2State)) ||
+                checkbox2State;
 
             submitBtn.disabled = !shouldEnable;
         }
@@ -210,60 +216,118 @@ function processVideo() {
         // Обработчики событий
         checkbox1.addEventListener('change', function () {
             handleMainCheckbox1Change(this.checked);
-            updateSubmitButtonState();
+            updateSubmitBtnState();
         });
 
         checkbox2.addEventListener('change', function () {
             handleMainCheckbox2Change(this.checked);
             // Показываем/скрываем вложенные чекбоксы
             nestedContainer.style.display = this.checked ? 'block' : 'none';
-            updateSubmitButtonState();
+            updateSubmitBtnState();
         });
 
         nestedCheckbox1.addEventListener('change', function () {
             handleNestedCheckbox1Change(this.checked);
-            updateSubmitButtonState();
+            updateSubmitBtnState();
         });
 
         nestedCheckbox2.addEventListener('change', function () {
             handleNestedCheckbox2Change(this.checked);
-            updateSubmitButtonState();
+            updateSubmitBtnState();
         });
 
         submitBtn.addEventListener('click', function () {
-            handleSubmitButtonClick();
+            handleSubmitBtnClick(checkbox1State, checkbox2State, nestedCheckbox1State, nestedCheckbox2State);
         });
 
+        // Инициализируем состояние кнопки
+        updateSubmitBtnState();
+    }
 
-        // Пустые функции-обработчики
-        function handleMainCheckbox1Change(isChecked) {
-            // Обработчик изменения основного checkbox 1
-        }
+    // Пустые функции-обработчики
+    function handleMainCheckbox1Change(isChecked) {
+        // Обработчик изменения основного checkbox 1
+    }
 
-        function handleMainCheckbox2Change(isChecked) {
-            // Обработчик изменения основного checkbox 2
-        }
+    function handleMainCheckbox2Change(isChecked) {
+        // Обработчик изменения основного checkbox 2
+    }
 
-        function handleNestedCheckbox1Change(isChecked) {
-            // Обработчик изменения вложенного checkbox 1
-        }
+    function handleNestedCheckbox1Change(isChecked) {
+        // Обработчик изменения вложенного checkbox 1
+    }
 
-        function handleNestedCheckbox2Change(isChecked) {
-            // Обработчик изменения вложенного checkbox 2
-        }
+    function handleNestedCheckbox2Change(isChecked) {
+        // Обработчик изменения вложенного checkbox 2
+    }
 
-        function handleSubmitButtonClick() {
-            // Обработчик клика по кнопке подтверждения
-            const formSent = new FormData()
-            formSent.append('uploadForm_File', fileToUpload)
+    function handleSubmitBtnClick() {
+        // сначала делаем disable всем чекбоксам на странице и удаляем кнопку "Обработать"
+        const allInputs = document.getElementsByTagName('input');
+        const inputs = Array.from(allInputs);
+        inputs.forEach((item) => {
+            if (item.type === 'checkbox') {
+                item.disabled = true;
+            }
+        })
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.remove();
 
-            const xhr = new XMLHttpRequest()
-            xhr.upload.addEventListener('progress', progressHandler, false)
-            xhr.addEventListener('load', loadHandler, false)
-            xhr.addEventListener('error', errorHandler);
-            xhr.open('POST', '/runProcess')
+        //let filename = this.dataset.filename;
+        document.getElementById('progressContainer').style.display = 'block';
 
-            xhr.send(formSent)
-        }
+        // Запускаем обработку видео
+        fetch('/process', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json',},
+            body: JSON.stringify({
+                filename: fileToUpload.name,
+                option1: checkbox1State,
+                option2: checkbox2State,
+                nestedOption1: nestedCheckbox1State,
+                nestedOption2: nestedCheckbox2State,
+            }),
+        });
+
+        // Запускаем обновление progress bar
+        let interval = setInterval(async () => {
+            let response = await fetch('/progress');
+            let result = await response.json();
+            document.getElementById('progressBarProcessing').value = result.progress;
+            document.getElementById('progressText').innerText = result.progress + '%';
+
+            if (result.progress >= 100) {
+                clearInterval(interval);
+                console.log("Начинает загружаться обработанное видео в браузер")
+                window.location.href = '/movie';
+
+                // document.getElementById('videoContainer').style.display = 'block';
+                // document.getElementById('videoSource').src = '/processed/processed_' + fileToUpload;
+                // document.getElementById('processedVideo').load();
+            }
+        }, 500);
+
+        // // Отправляем данные на сервер
+        // fetch('/process', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(formData)
+        // })
+        //     .then(response => {
+        //         if (!response.ok) {
+        //             throw new Error('Network response was not ok');
+        //         }
+        //         return response.json();
+        //     })
+        //     .then(data => {
+        //         console.log('Success:', data);
+        //         alert('Данные успешно отправлены!');
+        //     })
+        //     .catch(error => {
+        //         console.error('Error:', error);
+        //         alert('Произошла ошибка при отправке данных');
+        //     });
     }
 }

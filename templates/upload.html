@@ -6,34 +6,39 @@
 
 {% block body %}
 <div class="uploader-wrapper">
-  <form
-          class="form-upload"
-          id="uploadForm"
-          method="post"
-          enctype="multipart/form-data"
-  >
-    <label class="form-upload__label" for="uploadForm_File">
-      <span class="form-upload__title">Исходное видео:</span>
-      <input
-              class="form-upload__input"
-              id="uploadForm_File"
-              type="file"
-              name="file_name"
-              accept="video/*"
-      >
-    </label>
-    <input
-            class="form-upload__submit form-upload__submit_purple"
-            id="uploadForm_Submit"
-            type="submit"
-            value="Загрузить файл"
+    <form
+            class="form-upload"
+            id="uploadForm"
+            method="post"
+            enctype="multipart/form-data"
     >
-    <progress id="progressBar" value="0" max="100"></progress>
-    <div class="form-upload__container">
-      <span class="form-upload__status" id="uploadForm_Status"></span>
-      <span id="uploadForm_Size"></span>
+        <label class="form-upload__label" for="uploadForm_File">
+            <span class="form-upload__title">Исходное видео:</span>
+            <input
+                    class="form-upload__input"
+                    id="uploadForm_File"
+                    type="file"
+                    name="file_name"
+                    accept="video/*"
+            >
+        </label>
+        <input
+                class="form-upload__submit form-upload__submit_purple"
+                id="uploadForm_Submit"
+                type="submit"
+                value="Загрузить файл"
+        >
+        <progress id="progressBarLoading" value="0" max="100"></progress>
+        <div class="form-upload__container">
+            <span class="form-upload__status" id="uploadForm_Status"></span>
+            <span id="uploadForm_Size"></span>
+        </div>
+    </form>
+    <div id="progressContainer" style="display:none;">
+        <h2>Прогресс обработки:</h2>
+        <progress id="progressBarProcessing" value="0" max="100"></progress>
+        <p id="progressText">0%</p>
     </div>
-  </form>
 </div>
 {% endblock %}
 

@@ -1,4 +1,6 @@
 import os
+from fileinput import filename
+
 from flask import Flask, request, render_template, send_from_directory, jsonify
 import cv2
 import subprocess
@@ -36,30 +38,85 @@ def startJob():
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'uploadForm_File' not in request.files:
-        return f'''Файл не найден!'''
+        return jsonify({"success": False, "error": "Файл не найден..."})
 
     file = request.files['uploadForm_File']
     if file.filename == '':
-        return f'''Файл не выбран!'''
+        return jsonify({"success": False, "error": "Файл не выбран..."})
 
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
-    return f'''Файл успешно загружен! '''
+    return jsonify({"success": True, "filename": file.filename})
 
-# @app.route('/upload', methods=['POST'])
-# def upload_file():
-#     if 'file' not in request.files:
-#         return jsonify({"success": False, "error": "Файл не найден"})
-#
-#     file = request.files['file']
-#     if file.filename == '':
-#         return jsonify({"success": False, "error": "Файл не выбран"})
-#
-#     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-#     file.save(file_path)
-#
-#     return jsonify({"success": True, "filename": file.filename})
 
+# маршрут обработки загруженного исходного видеофайла
+@app.route('/process', methods=['POST'])
+def process_video_route():
+    try:
+        data = request.get_json()  # Получаем JSON из тела запроса.  Важно!
+        filename = data.get('filename')
+        param1 = data.get('param1')
+        param2 = data.get('param2')
+        param3 = data.get('param3')
+        param4 = data.get('param4')
+
+        print(
+            f"Received parameters: param1={param1}, param2={param2}, param3={param3}, param4={param4}, filename={filename}")
+
+        input_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        processed_filename = f"processed_{filename}"
+        processed_path = os.path.join(app.config['PROCESSED_FOLDER'], processed_filename)
+
+        process_video(input_path, processed_path)
+
+        return jsonify({"success": True, "filename": processed_filename})
+
+    except Exception as e:
+        # Обрабатываем любые исключения, которые могут произойти.
+        print(f"Error during processing: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500  # 500 Internal Server Error
+
+
+# маршрут вывода прогресса обработки загруженного исходного видеофайла
+# вызывается из js-кода с визуализацией прогресс-бара процесса обработки видео
+@app.route('/progress')
+def get_progress():
+    return jsonify(processing_status)
+
+@app.route('/processed/<filename>')
+def processed_video(filename):
+    return send_from_directory(app.config['PROCESSED_FOLDER'], filename)
+
+def process_video(input_path, output_path):
+    global processing_status
+
+    cap = cv2.VideoCapture(input_path)
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+
+    frame_processed = 0
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        # Пример обработки: преобразование в черно-белое
+        gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray_frame = cv2.cvtColor(gray_frame, cv2.COLOR_GRAY2BGR)  # Преобразование обратно для сохранения формата
+        out.write(gray_frame)
+
+        frame_processed += 1
+        processing_status["progress"] = int((frame_processed / frame_count) * 100)
+        #time.sleep(0.05)  # Имитация задержки обработки
+
+    cap.release()
+    out.release()
+    processing_status["progress"] = 100
 
 # @app.route('/runProcess', methods=['POST'])
 # def runProcess():
@@ -87,33 +144,45 @@ def upload_file():
 #     </video>
 #     '''
 
-@app.route('/processed/<filename>')
-def processed_video(filename):
-    return send_from_directory(app.config['PROCESSED_FOLDER'], filename)
+@app.route('/movie')
+def runProcess():
+    return f'''
+    <!doctype html>
+    <title>Результат</title>
+    <h1>Обработанное видео</h1>
+    <video controls autoplay preload="auto" width="640">
+      <source src="/processed/optimized_processed_jump.mp4" type="video/mp4">
+      Ваш браузер не поддерживает видео.
+    </video>
+    '''
 
-def process_video(input_path, output_path):
-    # Чтение видео
-    cap = cv2.VideoCapture(input_path)
-    # fourcc = cv2.VideoWriter_fourcc(*'H264')
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    fps = int(cap.get(cv2.CAP_PROP_FPS))
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-    out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
-
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        # Пример обработки: преобразование в черно-белое
-        gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray_frame = cv2.cvtColor(gray_frame, cv2.COLOR_GRAY2BGR)  # Преобразование обратно для сохранения формата
-        out.write(gray_frame)
-
-    cap.release()
-    out.release()
+# @app.route('/processed/<filename>')
+# def processed_video(filename):
+#     return send_from_directory(app.config['PROCESSED_FOLDER'], filename)
+#
+# def process_video(input_path, output_path):
+#     # Чтение видео
+#     cap = cv2.VideoCapture(input_path)
+#     # fourcc = cv2.VideoWriter_fourcc(*'H264')
+#     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+#     fps = int(cap.get(cv2.CAP_PROP_FPS))
+#     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+#     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+#
+#     out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+#
+#     while True:
+#         ret, frame = cap.read()
+#         if not ret:
+#             break
+#
+#         # Пример обработки: преобразование в черно-белое
+#         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+#         gray_frame = cv2.cvtColor(gray_frame, cv2.COLOR_GRAY2BGR)  # Преобразование обратно для сохранения формата
+#         out.write(gray_frame)
+#
+#     cap.release()
+#     out.release()
 
 if __name__ == '__main__':
     app.run(debug=True)
