@@ -4,6 +4,7 @@ let checkbox2State = false;
 let nestedCheckbox1State = false;
 let nestedCheckbox2State = false;
 let fileToUpload = '';
+let videoFileToRender = '';
 const BYTES_IN_MB = 1048576
 
 const form = document.getElementById('uploadForm')
@@ -95,13 +96,14 @@ function errorHandler() {
     submitButton.disabled = false
 }
 
+// god function
 function processVideo() {
     // создаем новую кнопку на странице для выбора опций обработки видео
     const buttonSelectOptions = document.createElement('button');
     buttonSelectOptions.textContent = 'Продолжить';
     buttonSelectOptions.classList.add('form-upload__submit', 'form-upload__submit_blue');
     buttonSelectOptions.style.margin = '25px auto';
-    document.getElementsByClassName("uploader-wrapper")[0].appendChild(buttonSelectOptions);
+    document.getElementsByClassName("wrapper")[0].appendChild(buttonSelectOptions);
 
     buttonSelectOptions.addEventListener('click', handleButtonClick);
 
@@ -211,7 +213,7 @@ function processVideo() {
         formContainer.appendChild(submitBtn);
 
         // Добавляем форму на страницу
-        document.getElementsByClassName("uploader-wrapper")[0].appendChild(formContainer);
+        document.getElementsByClassName("wrapper")[0].appendChild(formContainer);
 
         // Обработчики событий
         checkbox1.addEventListener('change', function () {
@@ -261,7 +263,7 @@ function processVideo() {
         // Обработчик изменения вложенного checkbox 2
     }
 
-    function handleSubmitBtnClick() {
+    function handleSubmitBtnClick(option1, option2, nestedOption1, nestedOption2) {
         // сначала делаем disable всем чекбоксам на странице и удаляем кнопку "Обработать"
         const allInputs = document.getElementsByTagName('input');
         const inputs = Array.from(allInputs);
@@ -273,61 +275,62 @@ function processVideo() {
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.remove();
 
-        //let filename = this.dataset.filename;
+        // показываем изначально скрытый на странице прогресс-бар хода процесса обработки видеофайла
         document.getElementById('progressContainer').style.display = 'block';
 
+        // // Запускаем обработку видео
+        // fetch('/process', {
+        //     method: 'POST',
+        //     headers: {'Content-Type': 'application/json',},
+        //     body: JSON.stringify({
+        //         filename: fileToUpload.name,
+        //         option1: checkbox1State,
+        //         option2: checkbox2State,
+        //         nestedOption1: nestedCheckbox1State,
+        //         nestedOption2: nestedCheckbox2State,
+        //     }),
+        // })
+        // .then(response => response.json()) // Декодируем ответ в формате json
+        // .then(data => {
+        //     videoFileToRender = data.filename;
+        //     // перенаправление на маршрут /movie, который выводит на страницу обработанное видео
+        //     // предварительно имя обработанного видеофайла скармливаем функции encodeURIComponent(),
+        //     // чтобы исключить влияние спецсимволов, типа пробелов и т.п.
+        //     // window.location.href = `/movie?filename=${encodeURIComponent(videoFileToRender)}`;
+        // });
+
         // Запускаем обработку видео
-        fetch('/process', {
+        let response = fetch('/process', {
             method: 'POST',
             headers: {'Content-Type': 'application/json',},
             body: JSON.stringify({
                 filename: fileToUpload.name,
-                option1: checkbox1State,
-                option2: checkbox2State,
-                nestedOption1: nestedCheckbox1State,
-                nestedOption2: nestedCheckbox2State,
+                option1: option1,
+                option2: option2,
+                nestedOption1: nestedOption1,
+                nestedOption2: nestedOption2,
             }),
-        });
+        })
+        // let result = await response.json(); // Декодируем ответ в формате json
+        // if (result.success) {
+        // videoFleToRender = result.filename;
+        .then(response => response.json()) // Декодируем ответ в формате json
+        .then(data => {
+            videoFileToRender = data.filename;
+            window.location.href = `/movie?filename=${encodeURIComponent(videoFileToRender)}`;
+        })
 
-        // Запускаем обновление progress bar
+        // Запускаем асинхронное обновление progress bar каждые полсекунды
         let interval = setInterval(async () => {
             let response = await fetch('/progress');
             let result = await response.json();
             document.getElementById('progressBarProcessing').value = result.progress;
             document.getElementById('progressText').innerText = result.progress + '%';
-
             if (result.progress >= 100) {
                 clearInterval(interval);
-                console.log("Начинает загружаться обработанное видео в браузер")
-                window.location.href = '/movie';
-
-                // document.getElementById('videoContainer').style.display = 'block';
-                // document.getElementById('videoSource').src = '/processed/processed_' + fileToUpload;
-                // document.getElementById('processedVideo').load();
+                // перенаправление по маршруту '/movie' для вывода обработанного видео в браузер
+                // window.location.href = `/movie?filename=${encodeURIComponent(videoFileToRender)}`;
             }
         }, 500);
-
-        // // Отправляем данные на сервер
-        // fetch('/process', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(formData)
-        // })
-        //     .then(response => {
-        //         if (!response.ok) {
-        //             throw new Error('Network response was not ok');
-        //         }
-        //         return response.json();
-        //     })
-        //     .then(data => {
-        //         console.log('Success:', data);
-        //         alert('Данные успешно отправлены!');
-        //     })
-        //     .catch(error => {
-        //         console.error('Error:', error);
-        //         alert('Произошла ошибка при отправке данных');
-        //     });
     }
 }

@@ -1,10 +1,9 @@
 import os
-from fileinput import filename
 
 from flask import Flask, request, render_template, send_from_directory, jsonify
 import cv2
 import subprocess
-import time
+# import time
 
 
 app = Flask(__name__)
@@ -67,9 +66,23 @@ def process_video_route():
         processed_filename = f"processed_{filename}"
         processed_path = os.path.join(app.config['PROCESSED_FOLDER'], processed_filename)
 
+        # Обработка видео
         process_video(input_path, processed_path)
 
-        return jsonify({"success": True, "filename": processed_filename})
+        # оптимизация (уменьшение размера) обработанного видео
+        optimizes_output_video = os.path.join(app.config['PROCESSED_FOLDER'], f"optimized_processed_{filename}")
+        # Команда FFmpeg для сжатия видео
+        ffmpeg_command = [
+            'ffmpeg', '-i', f"{processed_path}",
+            '-c:v', 'libx264', '-crf', '23', '-preset', 'medium',
+            '-c:a', 'aac', f"{optimizes_output_video}"
+        ]
+        # Запуск команды (на компьютере-сервере должна быть установлена программа ffmpeg)
+        subprocess.run(ffmpeg_command)
+        optimizes_processed_filename = os.path.basename(optimizes_output_video)
+        # удаляем неоптимизированный обработанный файл
+        os.remove(processed_path)
+        return jsonify({"success": True, "filename": optimizes_processed_filename})
 
     except Exception as e:
         # Обрабатываем любые исключения, которые могут произойти.
@@ -83,14 +96,24 @@ def process_video_route():
 def get_progress():
     return jsonify(processing_status)
 
+
+# этот маршрут вызывается из шаблона result.html тег video
 @app.route('/processed/<filename>')
 def processed_video(filename):
     return send_from_directory(app.config['PROCESSED_FOLDER'], filename)
 
+
 def process_video(input_path, output_path):
+    # используем ранее объявленную глобальную переменную, в которую будут записываться текущие прогресс
+    # обработки видео в процентах от общего количества кадров в исходном видео
     global processing_status
 
+    # Чтение видео
     cap = cv2.VideoCapture(input_path)
+    # берем кодек .H264, потому что с mp4v в браузере видео не идет (идет только в видеопроигрывателях,
+    # где есть соответствующие кодеки), правда размер видео получается намного больше, поэтому приходится
+    # оптимизировать
+    # fourcc = cv2.VideoWriter_fourcc(*'H264')
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -118,71 +141,13 @@ def process_video(input_path, output_path):
     out.release()
     processing_status["progress"] = 100
 
-# @app.route('/runProcess', methods=['POST'])
-# def runProcess():
-#     # Обработка видео
-#     processed_file_path = os.path.join(app.config['PROCESSED_FOLDER'], f"processed_{file.filename}")
-#     process_video(file_path, processed_file_path)
-#
-#     optimizes_output_video = os.path.join(app.config['PROCESSED_FOLDER'], f"optimized_processed_{file.filename}")
-#     # Команда FFmpeg для сжатия видео
-#     ffmpeg_command = [
-#         'ffmpeg', '-i', f"{processed_file_path}",
-#         '-c:v', 'libx264', '-crf', '23', '-preset', 'medium',
-#         '-c:a', 'aac', f"{optimizes_output_video}"
-#     ]
-#     # Запуск команды
-#     subprocess.run(ffmpeg_command)
-#
-#     return f'''
-#     <!doctype html>
-#     <title>Результат</title>
-#     <h1>Обработанное видео</h1>
-#     <video controls width="640">
-#       <source src="/processed/{os.path.basename(optimizes_output_video)}" type="video/mp4">
-#       Ваш браузер не поддерживает видео.
-#     </video>
-#     '''
 
-@app.route('/movie')
+@app.route('/movie', methods=['GET'])
 def runProcess():
-    return f'''
-    <!doctype html>
-    <title>Результат</title>
-    <h1>Обработанное видео</h1>
-    <video controls autoplay preload="auto" width="640">
-      <source src="/processed/optimized_processed_jump.mp4" type="video/mp4">
-      Ваш браузер не поддерживает видео.
-    </video>
-    '''
+    filename = request.args.get('filename')
+    if filename:
+        return render_template('result.html', src=filename).encode(encoding='UTF-8')
 
-# @app.route('/processed/<filename>')
-# def processed_video(filename):
-#     return send_from_directory(app.config['PROCESSED_FOLDER'], filename)
-#
-# def process_video(input_path, output_path):
-#     # Чтение видео
-#     cap = cv2.VideoCapture(input_path)
-#     # fourcc = cv2.VideoWriter_fourcc(*'H264')
-#     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-#     fps = int(cap.get(cv2.CAP_PROP_FPS))
-#     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-#     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-#
-#     out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
-#
-#     while True:
-#         ret, frame = cap.read()
-#         if not ret:
-#             break
-#
-#         # Пример обработки: преобразование в черно-белое
-#         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-#         gray_frame = cv2.cvtColor(gray_frame, cv2.COLOR_GRAY2BGR)  # Преобразование обратно для сохранения формата
-#         out.write(gray_frame)
-#
-#     cap.release()
-#     out.release()
 
 if __name__ == '__main__':
     app.run(debug=True)

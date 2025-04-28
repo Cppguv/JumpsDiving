@@ -4,7 +4,7 @@ body {
   color: #fff;
 }
 
-.uploader-wrapper {
+.wrapper {
   margin: 5rem auto;
   padding-top: 3rem;
   padding-bottom: 3rem;
@@ -148,7 +148,6 @@ progress::-moz-progress-bar {
 #progressContainer {
   width: 430px;
   margin: 0 auto;
-  /*align-content: center;*/
 }
 
 .form-upload__container {
@@ -160,7 +159,14 @@ progress::-moz-progress-bar {
   content: "Не загружено";
 }
 
-/*button:disabled {*/
-/*  opacity: 0.5;*/
-/*  cursor: not-allowed;*/
-/*}*/
+#videoContainer .videoContainer-header {
+  width: max-content;
+  margin: 0 auto;
+  font-size: 1.5rem;
+}
+
+#processedVideo {
+  display: block;
+  height: 100%;
+  margin: 1rem auto;
+}

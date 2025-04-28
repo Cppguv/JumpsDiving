@@ -5,7 +5,12 @@
 {% endblock %}
 
 {% block body %}
-<div class="container">
-<p>{{msg}}</p>
+<div id="videoContainer" class="wrapper">
+    <div class="videoContainer-header">Обработанное видео</div>
+    <video controls autoplay id="processedVideo">
+        <source id="videoSource" src='/processed/{{ src }}' type="video/mp4">
+<!--        <source id="videoSource" src="processed/optimized_processed_jump.mp4" type="video/mp4">-->
+        Ваш браузер не поддерживает видео.
+    </video>
 </div>
 {% endblock %}
